@@ -16,6 +16,7 @@ This github repository contains the FLAT (Fused Logit Attention Tiling) implemen
       - --Store_path : Path to store the memory and running time data
       - --Running_platform : Platform to run -- user can select either CPU or GPU. For GPU, it will use the first one detected(GPU 0)
       - --Loop_NUM : index of loop retition number
+4. Check the result data under the specified path. It should contain data.txt and memoryfile.txt, where each line in data.txt records the running time of the test case and memoryfile.txt traces memory usage snapshot. **Notice sometimes memoryfile.txt might not exist since we only take snapshots every 20 loops**.
       
 # How we track the profiling data?
 1. Runtime data:
