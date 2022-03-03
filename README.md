@@ -28,13 +28,13 @@ This github repository contains the FLAT (Fused Logit Attention Tiling) implemen
     - For memory profiling on GPU, we do two strategies. First one is to take snapshot of nvidia-smi command report. Second one is to use tf.config.memory_status()       to track the peak and current memory usage. Memory profiling data will also be stored in the same directory under ./data.
 
 # Not having a GPU locally?
-Besides the local testing method, we also provide a colab version of FLAT. User might want to store the data file in google drive and mount it to the colab. Similar working process is needed here.
+Besides the local testing method, we also provide a colab version of FLAT. User might want to store the data file in google drive and mount it to the colab. Similar working process is needed. Users can find details in CPU:GPU_Running.ipynb. Feel free to try that and see how it performs.
 
 # Running FLAT on TPU?
-We provide a separate file running FLAT on TPU. Check the notebook or even modify it if you are not satisfied.
+For the TPU testing, we take advantage of easy access to the colab TPU. There is a TPURunning.ipynb in the repo users can take a look. File system for TPU is not similar to CPU/GPU. Users, instead of mounting to google drive, must store the data into googl cloud storage bucket and mount the bucket name to the notebook. After that, please run the code to set up TPU environment before measuing FLAT. One thing here is that the last code cell is what we write for distribute testing on TPU, which I believe is necessary for maximizing the TPU power. However, we meet some bugs and that block cannot be run for now. Feel free to modify and fix it.
 
 # Challenges:
-There are many leftover issues right now. For example, GPU testing often crashes due to large intermediate footprint. CPU testing are not stable and always has some weird glitches. We are working on the solution now.
+There are many leftover issues right now. For example, GPU testing often crashes due to large intermediate footprint. CPU testing are not stable and always has some weird glitches. We are working on the solution now but one thing we are sure is that FLAT provides valuable granularity that is important for memory intense machines to run attention layer.
 
 # What to expect?
 We will be using more visualization tools to visualize memory usage and deeply understand what is going on inside the FLAT. We will also try to add some HLS taste to the project and implement it on FPGA to see if we can make FLAT even faster.
