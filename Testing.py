@@ -25,7 +25,7 @@ def FlatDataflow(loop_num, query, key, value, bias, batch_granularity_level=1, h
     if (len(query.shape) == 3):
       query = query[None, :, :, :]
       key = key[None, :, :, :]
-      value = value[None, :, :, :]  
+      value = value[None, :, :, :]
     batch_size, source_length, head_num, dim = tf.shape(query).numpy()
     memory=0
     # Set a fixed bias value here
@@ -140,6 +140,12 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
   #batch_shape, length_shape, num_shape, head_shape = test_shape[0], test_shape[1], test_shape[2], test_shape[3]
   counter_i = 0
   # Length test mode: length increase from 256 to 4096
+
+  timefilename=path+"/data"+("{0}".format(loop_num))+".txt"
+  memoryfilename=path+"/memory"+("{0}".format(loop_num))+".txt"
+  timefile = open(timefilename, 'w')
+  memoryfile = open(memoryfilename, 'w')
+
   if (test_dimension == "length"):
     fileidx = np.random.randint(FILENUM)
     batchidx = np.random.randint(BATCHSIZE)
@@ -158,7 +164,7 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
 
     for idx in range(start_size // 64, end_size // 64, 1):
       start_time = time.time()
-      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch, 
+      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch,
                                                       head_granularity_level=head, length_granularity_level=length, batchTrue=batchTrue, headTrue=headTrue, lengthTrue=lengthTrue)
       running_time.append(stoptime - start_time)
       peak_memory.append(peakCurr)
@@ -177,6 +183,8 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
           cmd = "nvidia-smi >> memoryfile.txt"
         os.system(cmd)
       counter_i = counter_i + 1
+      timefile.write(str(running_time[-1]) + "\n")
+      memoryfile.write(str(peak_memory[-1]) + "\n")
 
 
   # Batch test mode: batch increases from 256 to 4096
@@ -195,7 +203,7 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
 
     for idx in range(start_size//64, end_size//64, 1):
       start_time = time.time()
-      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch, 
+      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch,
                                                       head_granularity_level=head, length_granularity_level=length, batchTrue=batchTrue, headTrue=headTrue, lengthTrue=lengthTrue)
       running_time.append(stoptime - start_time)
       peak_memory.append(peakCurr)
@@ -212,6 +220,8 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
           cmd = "nvidia-smi >> memoryfile.txt"
         os.system(cmd)
       counter_i = counter_i + 1
+      timefile.write(str(running_time[-1]) + "\n")
+      memoryfile.write(str(peak_memory[-1]) + "\n")
 
   # Customized test option
   elif (test_dimension == "customized"):
@@ -226,7 +236,7 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
       value = tf.concat((value, valuein[fileidx][:, :, :, :]), axis=1)
     for idx in range(start_size // 64, end_size // 64, 1):
       start_time = time.time()
-      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch, 
+      peakOld, currOld, peakCurr, currCurr, stoptime = FlatDataflow(idx-start_size//64, query, key, value, BIAS, batch_granularity_level=batch,
                                                       head_granularity_level=head, length_granularity_level=length, batchTrue=batchTrue, headTrue=headTrue, lengthTrue=lengthTrue)
       running_time.append(stoptime - start_time)
       peak_memory.append(peakCurr)
@@ -245,19 +255,23 @@ def CallFLAT(batch_usage, batch_tile, head_usage, head_tile, length_usage, lengt
           cmd = "nvidia-smi >> memoryfile.txt"
         os.system(cmd)
       counter_i = counter_i + 1
+      timefile.write(str(running_time[-1]) + "\n")
+      memoryfile.write(str(peak_memory[-1]) + "\n")
 
 
-  timefilename=path+"/data"+("{0}".format(loop_num))+".txt"
-  memoryfilename=path+"/memory"+("{0}".format(loop_num))+".txt"
-  with open(timefilename, 'w') as f:
-    for item in running_time:
-      f.write(str(item) + "\n")
-    f.close()
-  if (os.environ['CUDA_VISIBLE_DEVICES'] == '0'):
-    with open(memoryfilename, 'w') as f:
-      for item in peak_memory:
-        f.write(str(item) + "\n")
-      f.close()
+  # timefilename=path+"/data"+("{0}".format(loop_num))+".txt"
+  # memoryfilename=path+"/memory"+("{0}".format(loop_num))+".txt"
+  # with open(timefilename, 'w') as f:
+  #   for item in running_time:
+  #     f.write(str(item) + "\n")
+  #   f.close()
+  # if (os.environ['CUDA_VISIBLE_DEVICES'] == '0'):
+  #   with open(memoryfilename, 'w') as f:
+  #     for item in peak_memory:
+  #       f.write(str(item) + "\n")
+  #     f.close()
+  memoryfile.close()
+  timefile.close()
   print("Finished!")
 
 
