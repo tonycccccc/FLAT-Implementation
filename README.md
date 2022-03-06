@@ -1,7 +1,7 @@
 # FLAT-Implementation
 Implementation of Fused Logit Attention Tiling
 
-This github repository contains the FLAT (Fused Logit Attention Tiling) implementation and FLAT1 simulator profiling code's runtime and memory performance. Users can test different granularities here with input data under ./FILES directory and get the clear statistics in ./data directory.
+This github repository contains the FLAT (Fused Logit Attention Tiling) implementation and FLAT1 simulator profiling code's runtime and memory performance. Users can test different granularities here with input data under ./FILES directory and get the output statistics in ./data directory.
 
 # How to start?
 1. Make sure install all the required libraries, which includes Tensorflow2.0, Numpy, glob2 and argparse.
